@@ -3,14 +3,14 @@ const axios = require('axios');
 
 module.exports = async (req, res) => {
   try {
-    const url = 'https://www.timeanddate.com/weather/guatemala/guatemala-city';
+    const url = 'https://www.meteored.com.gt/tiempo-en_Ciudad+de+Guatemala-America+Central-Guatemala-GUATEMALA-6353/';
 
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
 
-    // Obtenemos la temperatura y descripción
-    const temp = $('.h2').first().text().trim();
-    const condition = $('.bk-focus__info').find('p').first().text().trim();
+    // Busca el valor de temperatura y estado
+    const temp = $('.datos-actuales .dato-temperatura').first().text().trim();
+    const condition = $('.datos-actuales .txt-estado').first().text().trim();
 
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.status(200).json({
