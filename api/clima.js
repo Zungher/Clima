@@ -4,8 +4,9 @@ module.exports = async (req, res) => {
   try {
     const lat = '14.6349';
     const lon = '-90.5069';
-    // Se agregan parámetros para humedad y presión
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relativehumidity_2m,pressure_msl`;
+
+    // Se agregan parámetros para obtener humedad, presión y ajustar la zona horaria a Guatemala
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relativehumidity_2m,pressure_msl&timezone=America/Guatemala`;
 
     const { data } = await axios.get(url);
 
@@ -35,14 +36,13 @@ module.exports = async (req, res) => {
 
     const condition = weatherDescriptions[weather.weathercode] || 'Sin datos';
 
-    // Hora actual reportada por la API
+    // Hora actual reportada por la API (ya en la zona horaria de Guatemala)
     const currentTime = weather.time;
-    // Convertir a objeto Date para obtener la hora local
+    // Convertir a objeto Date
     const dateTime = new Date(currentTime);
     const hour = dateTime.getHours();
 
-    // Determinar momento del día según la hora
-    // Ajusta los rangos a tu preferencia
+    // Determinar momento del día (ajusta los rangos si lo deseas)
     let momento = '';
     if (hour >= 0 && hour < 6) {
       momento = 'Madrugada';
@@ -71,7 +71,7 @@ module.exports = async (req, res) => {
       viento: `${weather.windspeed} km/h`,
       humedad: humidity,
       presion: pressure,
-      momento  // Ejemplo: 'Madrugada', 'Día' o 'Noche'
+      momento // Ejemplo: 'Madrugada', 'Día' o 'Noche'
     });
 
   } catch (error) {
