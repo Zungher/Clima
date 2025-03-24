@@ -16,10 +16,10 @@ module.exports = async (req, res) => {
 
     // Mapeo de códigos de clima a descripciones
     const weatherDescriptions = {
-      0: "Despejado",
-      1: "Principalmente despejado",
-      2: "Parcialmente nublado",
-      3: "Nublado",
+      0:  "Despejado",
+      1:  "Principalmente despejado",
+      2:  "Parcialmente nublado",
+      3:  "Nublado",
       45: "Niebla",
       48: "Niebla con escarcha",
       51: "Llovizna ligera",
@@ -35,8 +35,23 @@ module.exports = async (req, res) => {
 
     const condition = weatherDescriptions[weather.weathercode] || 'Sin datos';
 
-    // Obtener la hora actual del clima
+    // Hora actual reportada por la API
     const currentTime = weather.time;
+    // Convertir a objeto Date para obtener la hora local
+    const dateTime = new Date(currentTime);
+    const hour = dateTime.getHours();
+
+    // Determinar momento del día según la hora
+    // Ajusta los rangos a tu preferencia
+    let momento = '';
+    if (hour >= 0 && hour < 6) {
+      momento = 'Madrugada';
+    } else if (hour >= 6 && hour < 18) {
+      momento = 'Día';
+    } else {
+      momento = 'Noche';
+    }
+
     // Buscar el índice de la hora actual en el array de tiempos horarios
     const hourlyIndex = data.hourly.time.indexOf(currentTime);
 
@@ -48,13 +63,15 @@ module.exports = async (req, res) => {
       pressure = `${data.hourly.pressure_msl[hourlyIndex]} hPa`;
     }
 
+    // Respuesta
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.status(200).json({
       temperatura: `${weather.temperature}°C`,
       estado: condition,
       viento: `${weather.windspeed} km/h`,
       humedad: humidity,
-      presion: pressure
+      presion: pressure,
+      momento  // Ejemplo: 'Madrugada', 'Día' o 'Noche'
     });
 
   } catch (error) {
