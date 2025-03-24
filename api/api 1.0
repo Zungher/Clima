@@ -1,0 +1,49 @@
+const axios = require('axios');
+
+module.exports = async (req, res) => {
+  try {
+    const lat = '14.6349';
+    const lon = '-90.5069';
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+
+    const { data } = await axios.get(url);
+
+    const weather = data?.current_weather;
+
+    if (!weather) {
+      throw new Error('No se pudo obtener el clima');
+    }
+
+    // Mapeo de códigos de clima a descripciones
+    const weatherDescriptions = {
+      0: "Despejado",
+      1: "Principalmente despejado",
+      2: "Parcialmente nublado",
+      3: "Nublado",
+      45: "Niebla",
+      48: "Niebla con escarcha",
+      51: "Llovizna ligera",
+      53: "Llovizna moderada",
+      55: "Llovizna densa",
+      61: "Lluvia ligera",
+      63: "Lluvia moderada",
+      65: "Lluvia intensa",
+      80: "Chubascos ligeros",
+      81: "Chubascos moderados",
+      82: "Chubascos violentos"
+    };
+
+    const condition = weatherDescriptions[weather.weathercode] || 'Sin datos';
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.status(200).json({
+      temperatura: `${weather.temperature}°C`,
+      estado: condition,
+      viento: `${weather.windspeed} km/h`
+    });
+
+  } catch (error) {
+    console.error('ERROR:', error.message);
+    res.status(500).json({ error: 'Error al obtener el clima' });
+  }
+};
